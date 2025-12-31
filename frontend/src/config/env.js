@@ -4,7 +4,7 @@ const getApiUrl = () => {
   if (envUrl && typeof envUrl === 'string') {
     const trimmed = envUrl.trim();
     if (trimmed.length > 0 && trimmed !== 'undefined' && trimmed !== 'null') {
-      return trimmed;
+      return trimmed.replace(/\/+$/, '');
     }
   }
   
@@ -62,9 +62,11 @@ if (typeof window !== 'undefined') {
     console.error('❌ VITE_API_URL is missing in production!');
     console.error('Action required:');
     console.error('1. Go to Vercel → Your Project → Settings → Environment Variables');
-    console.error('2. Add: VITE_API_URL = your-backend-url');
+    console.error('2. Add: VITE_API_URL = https://svn-ten.vercel.app');
     console.error('3. Select ALL environments (Production, Preview, Development)');
     console.error('4. Save and REDEPLOY your application');
+  } else if (resolvedUrl) {
+    console.log('✅ API URL is configured correctly');
   }
   console.groupEnd();
 }
