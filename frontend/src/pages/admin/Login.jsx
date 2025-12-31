@@ -35,7 +35,15 @@ const Login = () => {
     setError('');
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      // Import API configuration
+      const { API_URL, isApiConfigured, getApiConfigError } = await import('../config/api.js');
+      
+      // Check if API is configured
+      if (!isApiConfigured()) {
+        setError(getApiConfigError());
+        setLoading(false);
+        return;
+      }
       
       const response = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
@@ -63,8 +71,13 @@ const Login = () => {
       }
     } catch (err) {
       if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        setError(`Cannot connect to backend server at ${apiUrl}. Please check your VITE_API_URL environment variable in Vercel settings.`);
+        const { API_URL, getApiConfigError } = await import('../config/api.js');
+        const configError = getApiConfigError();
+        if (configError) {
+          setError(configError);
+        } else {
+          setError(`Cannot connect to backend server at ${API_URL}. Please verify the backend is running and accessible.`);
+        }
       } else {
         setError(err.message || 'Login failed. Please check your credentials.');
       }

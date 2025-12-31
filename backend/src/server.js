@@ -65,9 +65,16 @@ connectDB()
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log(`✅✅✅ SERVER RUNNING ON PORT ${PORT} ✅✅✅`);
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`🌐 API Base: http://localhost:${PORT}/api`);
-      console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
-      console.log(`🔐 Admin Login: http://localhost:${PORT}/api/admin/login`);
+      // Only show localhost URLs in development
+      if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+        console.log(`🌐 API Base: http://localhost:${PORT}/api`);
+        console.log(`🏥 Health: http://localhost:${PORT}/api/health`);
+        console.log(`🔐 Admin Login: http://localhost:${PORT}/api/admin/login`);
+      } else {
+        console.log(`🌐 Server running on port ${PORT}`);
+        console.log(`🏥 Health: /api/health`);
+        console.log(`🔐 Admin Login: /api/admin/login`);
+      }
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('');
       console.log('✅ Server is ready to accept requests!');

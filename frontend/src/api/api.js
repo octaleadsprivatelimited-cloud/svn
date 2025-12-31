@@ -1,6 +1,11 @@
 import axios from 'axios';
+import { API_URL, isApiConfigured, getApiConfigError } from '../config/api.js';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Validate API URL is configured
+if (!isApiConfigured()) {
+  const error = getApiConfigError();
+  console.error(error);
+}
 
 const api = axios.create({
   baseURL: API_URL,
