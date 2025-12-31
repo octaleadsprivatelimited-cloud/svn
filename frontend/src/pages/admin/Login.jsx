@@ -63,7 +63,8 @@ const Login = () => {
       }
     } catch (err) {
       if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-        setError('Cannot connect to server. Please make sure the backend server is running on port 3001.');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        setError(`Cannot connect to backend server at ${apiUrl}. Please check your VITE_API_URL environment variable in Vercel settings.`);
       } else {
         setError(err.message || 'Login failed. Please check your credentials.');
       }
