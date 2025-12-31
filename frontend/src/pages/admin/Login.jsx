@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_URL, isApiConfigured, getApiConfigError } from '../../config/api.js';
-import { API_URL, isApiConfigured, getApiConfigError } from '../../config/api.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({
