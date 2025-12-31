@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL, isApiConfigured, getApiConfigError } from '../../config/api.js';
+import { API_URL, isApiConfigured, getApiConfigError } from '../../config/api.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -35,9 +37,6 @@ const Login = () => {
     setError('');
 
     try {
-      // Import API configuration
-      const { API_URL, isApiConfigured, getApiConfigError } = await import('../config/api.js');
-      
       // Check if API is configured
       if (!isApiConfigured()) {
         setError(getApiConfigError());
@@ -71,7 +70,6 @@ const Login = () => {
       }
     } catch (err) {
       if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-        const { API_URL, getApiConfigError } = await import('../config/api.js');
         const configError = getApiConfigError();
         if (configError) {
           setError(configError);
