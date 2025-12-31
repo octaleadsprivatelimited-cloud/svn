@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_URL, isApiConfigured, getApiConfigError } from '../../config/api.js';
+import { API_URL, isApiConfigured, getApiConfigError } from '../../config/env.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -36,9 +36,9 @@ const Login = () => {
     setError('');
 
     try {
-      // Check if API is configured
-      if (!isApiConfigured()) {
-        setError(getApiConfigError());
+      if (!isApiConfigured() || !API_URL) {
+        const configError = getApiConfigError();
+        setError(configError || 'Backend API URL is not configured.');
         setLoading(false);
         return;
       }
@@ -68,12 +68,12 @@ const Login = () => {
         setError(data.message || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
-      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('API URL is not configured')) {
         const configError = getApiConfigError();
         if (configError) {
           setError(configError);
         } else {
-          setError(`Cannot connect to backend server at ${API_URL}. Please verify the backend is running and accessible.`);
+          setError(`Cannot connect to backend server${API_URL ? ` at ${API_URL}` : ''}. Please verify the backend is running and accessible.`);
         }
       } else {
         setError(err.message || 'Login failed. Please check your credentials.');

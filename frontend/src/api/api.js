@@ -1,18 +1,28 @@
 import axios from 'axios';
-import { API_URL, isApiConfigured, getApiConfigError } from '../config/api.js';
+import { API_URL, isApiConfigured } from '../config/env.js';
 
-// Validate API URL is configured
-if (!isApiConfigured()) {
-  const error = getApiConfigError();
-  console.error(error);
+if (!isApiConfigured() && typeof window !== 'undefined') {
+  console.warn('⚠️ VITE_API_URL is not set. Using fallback or API calls may fail.');
 }
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_URL || '',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use(
+  (config) => {
+    if (!config.baseURL) {
+      return Promise.reject(new Error('API URL is not configured'));
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 const getAuthToken = () => {
   try {
