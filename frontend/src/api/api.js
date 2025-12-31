@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { API_URL, isApiConfigured } from '../config/env.js';
 
-if (!isApiConfigured() && typeof window !== 'undefined') {
-  console.warn('⚠️ VITE_API_URL is not set. Using fallback or API calls may fail.');
+if (typeof window !== 'undefined') {
+  if (!isApiConfigured()) {
+    console.warn('⚠️ API URL is not configured. API calls will fail.');
+  } else {
+    console.log('✅ API URL configured:', API_URL);
+  }
 }
 
 const api = axios.create({
@@ -10,16 +14,28 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
   (config) => {
-    if (!config.baseURL) {
-      return Promise.reject(new Error('API URL is not configured'));
+    if (!config.baseURL || config.baseURL === '') {
+      const error = new Error('API URL is not configured. Please set VITE_API_URL in Vercel environment variables.');
+      return Promise.reject(error);
     }
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.message && error.message.includes('API URL is not configured')) {
+      console.error('❌ API Configuration Error:', error.message);
+    }
     return Promise.reject(error);
   }
 );
@@ -50,7 +66,7 @@ export const contactAPI = {
       const response = await api.post('/api/contact', data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   getContacts: async () => {
@@ -58,7 +74,7 @@ export const contactAPI = {
       const response = await api.get('/api/contact');
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   getContact: async (id) => {
@@ -66,7 +82,7 @@ export const contactAPI = {
       const response = await api.get(`/api/contact/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   deleteContact: async (id) => {
@@ -74,7 +90,7 @@ export const contactAPI = {
       const response = await api.delete(`/api/contact/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
 };
@@ -85,7 +101,7 @@ export const productAPI = {
       const response = await api.get(`/api/products?active=${active}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   getProduct: async (id) => {
@@ -93,7 +109,7 @@ export const productAPI = {
       const response = await api.get(`/api/products/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   createProduct: async (data) => {
@@ -101,7 +117,7 @@ export const productAPI = {
       const response = await api.post('/api/products', data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   updateProduct: async (id, data) => {
@@ -109,7 +125,7 @@ export const productAPI = {
       const response = await api.put(`/api/products/${id}`, data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   deleteProduct: async (id) => {
@@ -117,7 +133,7 @@ export const productAPI = {
       const response = await api.delete(`/api/products/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
 };
@@ -132,7 +148,7 @@ export const adminAPI = {
       }
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'An error occurred' };
+      throw error.response?.data || { message: error.message || 'An error occurred' };
     }
   },
   logout: () => {
@@ -175,7 +191,7 @@ export const healthCheck = async () => {
     const response = await api.get('/api/health');
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Health check failed' };
+    throw error.response?.data || { message: error.message || 'Health check failed' };
   }
 };
 
